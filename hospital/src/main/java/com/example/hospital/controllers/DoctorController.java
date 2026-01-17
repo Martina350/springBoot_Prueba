@@ -1,7 +1,6 @@
 package com.example.hospital.controllers;
 
 import java.util.List;
-import java.util.Optional;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -15,7 +14,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.example.hospital.entity.Doctor;
-import com.example.hospital.repository.DoctorRepository;
 import com.example.hospital.service.DoctorService;
 
 import lombok.RequiredArgsConstructor;
@@ -26,26 +24,6 @@ import lombok.RequiredArgsConstructor;
 public class DoctorController {
     
     private final DoctorService doctorService;
-    private final DoctorRepository doctorRepository;
-
-    @GetMapping
-    public ResponseEntity<List<Doctor>> listarDoctores() {
-        List<Doctor> doctores = doctorService.listarDoctor();
-        return ResponseEntity.ok(doctores);
-    }
-
-    @GetMapping("/{id}")
-    public ResponseEntity<Doctor> obtenerDoctorPorId(@PathVariable Integer id) {
-        Optional<Doctor> doctor = doctorService.obtenerDoctorPorId(id);
-        return doctor.map(ResponseEntity::ok)
-                     .orElse(ResponseEntity.notFound().build());
-    }
-
-    @GetMapping("/especialidad/{idEspecialidad}")
-    public ResponseEntity<List<Doctor>> obtenerDoctoresPorEspecialidad(@PathVariable Integer idEspecialidad) {
-        List<Doctor> doctores = doctorRepository.findByEspecialidadIdEspecialidad(idEspecialidad);
-        return ResponseEntity.ok(doctores);
-    }
 
     @PostMapping
     public ResponseEntity<Doctor> crearDoctor(@RequestBody Doctor doctor) {
@@ -61,6 +39,12 @@ public class DoctorController {
         } catch (RuntimeException e) {
             return ResponseEntity.notFound().build();
         }
+    }
+
+    @GetMapping
+    public ResponseEntity<List<Doctor>> listarDoctores() {
+        List<Doctor> doctores = doctorService.listarDoctor();
+        return ResponseEntity.ok(doctores);
     }
 
     @DeleteMapping("/{id}")
