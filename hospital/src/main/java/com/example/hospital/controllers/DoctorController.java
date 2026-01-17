@@ -2,34 +2,74 @@ package com.example.hospital.controllers;
 
 import java.util.List;
 import java.util.Optional;
+
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.http.ResponseEntity;
-import lombok.RequiredArgsConstructor;
 
 import com.example.hospital.entity.Doctor;
-
+import com.example.hospital.repository.DoctorRepository;
 import com.example.hospital.service.DoctorService;
 
+import lombok.RequiredArgsConstructor;
+
 @RestController
-@RequestMapping("api/doctor")
+@RequestMapping("/api/doctor")
 @RequiredArgsConstructor
 public class DoctorController {
-    private final DoctorService doctorService;
-    @GetMapping
-    public ResponseEntity<List<?>> obtenerListas() {
-        List<Doctor> doctors = doctorService.listarDoctor();
-        return ResponseEntity.ok(doctors);
-    }
-        
-    @PostMapping("/crear")
-    public ResponseEntity<?> crearDoctor(@RequestBody Doctor doctor) {
-        Doctor nuevoDoctor = doctorService.crearDoctor(doctor)
-        return ResponseEntity.status(HttpStatus.CREATED).body(doctor);
-    }
     
+    private final DoctorService doctorService;
+    private final DoctorRepository doctorRepository;
+
+    @GetMapping
+    public ResponseEntity<List<Doctor>> listarDoctores() {
+        List<Doctor> doctores = doctorService.listarDoctor();
+        return ResponseEntity.ok(doctores);
+    }
+
+    @GetMapping("/{id}")
+    public ResponseEntity<Doctor> obtenerDoctorPorId(@PathVariable Integer id) {
+        Optional<Doctor> doctor = doctorService.obtenerDoctorPorId(id);
+        return doctor.map(ResponseEntity::ok)
+                     .orElse(ResponseEntity.notFound().build());
+    }
+
+    @GetMapping("/especialidad/{idEspecialidad}")
+    public ResponseEntity<List<Doctor>> obtenerDoctoresPorEspecialidad(@PathVariable Integer idEspecialidad) {
+        List<Doctor> doctores = doctorRepository.findByEspecialidadIdEspecialidad(idEspecialidad);
+        return ResponseEntity.ok(doctores);
+    }
+
+    @PostMapping
+    public ResponseEntity<Doctor> crearDoctor(@RequestBody Doctor doctor) {
+        Doctor nuevoDoctor = doctorService.crearDoctor(doctor);
+        return ResponseEntity.status(HttpStatus.CREATED).body(nuevoDoctor);
+    }
+
+    @PutMapping("/{id}")
+    public ResponseEntity<Doctor> actualizarDoctor(@PathVariable Integer id, @RequestBody Doctor doctor) {
+        try {
+            Doctor doctorActualizado = doctorService.actualizarDoctor(id, doctor);
+            return ResponseEntity.ok(doctorActualizado);
+        } catch (RuntimeException e) {
+            return ResponseEntity.notFound().build();
+        }
+    }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> eliminarDoctor(@PathVariable Integer id) {
+        try {
+            doctorService.eliminarDoctor(id);
+            return ResponseEntity.noContent().build();
+        } catch (RuntimeException e) {
+            return ResponseEntity.notFound().build();
+        }
+    }
 }

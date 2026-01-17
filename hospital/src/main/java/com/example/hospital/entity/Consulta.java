@@ -2,6 +2,7 @@ package com.example.hospital.entity;
 
 import jakarta.persistence.*;
 import lombok.Data;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import java.time.LocalDateTime;
 
 @Entity
@@ -11,26 +12,28 @@ public class Consulta {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "id_consulta")
+    @Column(name = "id")
     private Integer idConsulta;
 
-    @Column(nullable = false)
-    private LocalDateTime fecha; // Usa LocalDateTime para fecha y hora
+    @Column(name = "fecha", nullable = false)
+    private LocalDateTime fecha;
 
-    @Column(nullable = false)
+    @Column(name = "motivo", nullable = false)
     private String motivo;
 
-    // FK: id_paciente
-    @ManyToOne
+    @Column(name = "diagnostico", columnDefinition = "TEXT")
+    private String diagnostico;
+
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "id_paciente", nullable = false)
+    @JsonIgnoreProperties("consultas")
     private Paciente paciente;
 
-    // FK: id_doctor
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "id_doctor", nullable = false)
     private Doctor doctor;
 
-    // Relación inversa con Receta (1 a 1)
     @OneToOne(mappedBy = "consulta", cascade = CascadeType.ALL)
+    @JsonIgnoreProperties("consulta")
     private Receta receta;
 }

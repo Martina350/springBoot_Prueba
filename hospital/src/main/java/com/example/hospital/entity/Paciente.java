@@ -2,7 +2,7 @@ package com.example.hospital.entity;
 
 import jakarta.persistence.*;
 import lombok.Data;
-import java.time.LocalDate;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import java.util.List;
 
 @Entity
@@ -12,27 +12,29 @@ public class Paciente {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "id_paciente")
+    @Column(name = "id")
     private Integer idPaciente;
 
-    @Column(nullable = false, length = 100)
+    @Column(name = "nombre", nullable = false, length = 100)
     private String nombre;
 
-    @Column(nullable = false, length = 100)
+    @Column(name = "apellido", nullable = false, length = 100)
     private String apellido;
 
-    @Column(nullable = false, length = 10, unique = true)
+    @Column(name = "edad", nullable = false)
+    private Integer edad;
+
+    @Column(name = "cedula", nullable = false, length = 10, unique = true)
     private String cedula;
 
-    @Column(name = "fecha_nacimiento", nullable = false)
-    private LocalDate fechaNacimiento;
-
-    @Column(length = 20)
+    @Column(name = "telefono", length = 20)
     private String telefono;
 
     @OneToOne(mappedBy = "paciente", cascade = CascadeType.ALL)
+    @JsonIgnoreProperties("paciente")
     private Historial historial;
     
     @OneToMany(mappedBy = "paciente")
+    @JsonIgnoreProperties("paciente")
     private List<Consulta> consultas;
 }
